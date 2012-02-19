@@ -9,11 +9,11 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from __future__ import with_statement
+
 
 import unittest
 from os import path
-from cStringIO import StringIO
+from io import StringIO
 
 from werkzeug.testsuite import WerkzeugTestCase
 
@@ -27,7 +27,7 @@ class WSGIUtilsTestCase(WerkzeugTestCase):
 
     def test_shareddatamiddleware_get_file_loader(self):
         app = wsgi.SharedDataMiddleware(None, {})
-        assert callable(app.get_file_loader('foo'))
+        assert hasattr(app.get_file_loader('foo'), '__call__')
 
     def test_shared_data_middleware(self):
         def null_application(environ, start_response):
@@ -164,24 +164,24 @@ class WSGIUtilsTestCase(WerkzeugTestCase):
 
     def test_path_info_extraction(self):
         x = wsgi.extract_path_info('http://example.com/app', '/app/hello')
-        self.assert_equal(x, u'/hello')
+        self.assert_equal(x, '/hello')
         x = wsgi.extract_path_info('http://example.com/app',
                                    'https://example.com/app/hello')
-        self.assert_equal(x, u'/hello')
+        self.assert_equal(x, '/hello')
         x = wsgi.extract_path_info('http://example.com/app/',
                                    'https://example.com/app/hello')
-        self.assert_equal(x, u'/hello')
+        self.assert_equal(x, '/hello')
         x = wsgi.extract_path_info('http://example.com/app/',
                                    'https://example.com/app')
-        self.assert_equal(x, u'/')
-        x = wsgi.extract_path_info(u'http://☃.net/', u'/fööbär')
-        self.assert_equal(x, u'/fööbär')
-        x = wsgi.extract_path_info(u'http://☃.net/x', u'http://☃.net/x/fööbär')
-        self.assert_equal(x, u'/fööbär')
+        self.assert_equal(x, '/')
+        x = wsgi.extract_path_info('http://☃.net/', '/fööbär')
+        self.assert_equal(x, '/fööbär')
+        x = wsgi.extract_path_info('http://☃.net/x', 'http://☃.net/x/fööbär')
+        self.assert_equal(x, '/fööbär')
 
-        env = create_environ(u'/fööbär', u'http://☃.net/x/')
-        x = wsgi.extract_path_info(env, u'http://☃.net/x/fööbär')
-        self.assert_equal(x, u'/fööbär')
+        env = create_environ('/fööbär', 'http://☃.net/x/')
+        x = wsgi.extract_path_info(env, 'http://☃.net/x/fööbär')
+        self.assert_equal(x, '/fööbär')
 
         x = wsgi.extract_path_info('http://example.com/app/',
                                    'https://example.com/a/hello')
@@ -216,7 +216,7 @@ class WSGIUtilsTestCase(WerkzeugTestCase):
 
     def test_multi_part_line_breaks_problematic(self):
         data = 'abc\rdef\r\nghi'
-        for x in xrange(1, 10):
+        for x in range(1, 10):
             test_stream = StringIO(data)
             lines = list(wsgi.make_line_iter(test_stream, limit=len(data), buffer_size=4))
             assert lines == ['abc\r', 'def\r\n', 'ghi']
@@ -238,7 +238,7 @@ class WSGIUtilsTestCase(WerkzeugTestCase):
 
     def test_lines_longer_buffer_size(self):
         data = '1234567890\n1234567890\n'
-        for bufsize in xrange(1, 15):
+        for bufsize in range(1, 15):
             lines = list(wsgi.make_line_iter(StringIO(data), limit=len(data), buffer_size=4))
             self.assert_equal(lines, ['1234567890\n', '1234567890\n'])
 

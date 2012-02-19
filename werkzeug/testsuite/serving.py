@@ -10,10 +10,10 @@
 """
 import sys
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import unittest
 from functools import update_wrapper
-from StringIO import StringIO
+from io import StringIO
 
 from werkzeug.testsuite import WerkzeugTestCase
 
